@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conference comments{% endblock %}
+
+{% block body %}
+    <h2>{{ conf.city }} {{ conf.year }}</h2>
+    <ul class="list-group">
+        {% for comment in comments %}
+            <li class="list-group-item">
+                <h4>{{ comment.author }}</h4><span>{{ comment.email }}</span>
+                <div><img style="max-width: 150px" src="{{ asset('guestbook/'~comment.photoFilename) }}"> </div>
+                <div>{{ comment.text | raw }}</div>
+            </li>
+        {% endfor %}
+    </ul>
+            {% if previous >= 0 %}
+                    <a href="{{ path('conference', { id: conference, offset: previous }) }}">Previous</a>
+                {% endif %}
+            {% if next < comments|length %}
+                <a href="{{ path('conference', { id: conference, offset: next }) }}">Next</a>
+            {% endif %}
+    <div>
+        <h4>Оставьте комментарий</h4>
+        {{ form(comment_form) }}
+    </div>
+{% endblock %}
