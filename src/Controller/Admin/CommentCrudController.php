@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Comment;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -46,7 +47,11 @@ class CommentCrudController extends AbstractCrudController
             AssociationField::new('conference'),
             TextField::new('email'),
             DateTimeField::new('createdAt'),
-            TextField::new('photoFilename')
+            //TextField::new('photoFilename')
+            ImageField::new('photoFilename')
+                ->setBasePath('/guestbook')
+                ->setLabel('Photo')
+                ->onlyOnIndex()
 
         ];
     }

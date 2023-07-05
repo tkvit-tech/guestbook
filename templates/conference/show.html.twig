@@ -19,8 +19,11 @@
             {% if next < comments|length %}
                 <a href="{{ path('conference', { id: conference, offset: next }) }}">Next</a>
             {% endif %}
-    <div>
+    <div class="row">
+        <div class="col-5">
         <h4>Оставьте комментарий</h4>
         {{ form(comment_form) }}
+        </div>
     </div>
+    <div>&nbsp;</div>
 {% endblock %}
