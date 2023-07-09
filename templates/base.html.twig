@@ -28,6 +28,11 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <a class="btn btn-outline-primary" href="{{ path('app_logout') }}">выйти</a>
+                {% else %}
+                    <a class="btn btn-outline-primary" href="{{ path('app_login') }}">войти</a>&nbsp;<a class="btn btn-outline-primary" href="{{ path('app_register') }}">зарегестрироваться</a>&nbsp;
+                {% endif %}
                 <form>
                     <input class="form-control" type="text" placeholder="Search" aria-label="Search">
                 </form>
