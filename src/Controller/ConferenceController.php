@@ -15,9 +15,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+//use App\SpamChecker;
+use App\Message\CommentMessage;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class ConferenceController extends AbstractController
 {
+
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private MessageBusInterface $bus,
+     ) {
+     }
+
     //#[Route('/conference', name: 'app_conference')]
     #[Route('/', name: 'homepage')]
     public function index(Environment $environment, ConferenceRepository $conferenceRepository): Response
@@ -56,7 +66,19 @@ class ConferenceController extends AbstractController
                             }
             $comment->setConference($conf);
             $entityManager->persist($comment);
-            $entityManager->flush();
+            $this->entityManager->flush();
+            $context = [
+                                'user_ip' => $request->getClientIp(),
+                                'user_agent' => $request->headers->get('user-agent'),
+                                'referrer' => $request->headers->get('referer'),
+                                'permalink' => $request->getUri(),
+                            ];
+            //echo "__".$spamChecker->getSpamScore($comment, $context);die();
+ //                       if (2 === $spamChecker->getSpamScore($comment, $context)) {
+ //                           throw new \RuntimeException('Blatant spam, go away!');
+ //           }
+ //           $entityManager->flush();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
             return $this->redirectToRoute('conference', ['id' => $id]);
         }
          return new Response($environment->render('conference/show.html.twig', [

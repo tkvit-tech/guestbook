@@ -48,6 +48,7 @@ class CommentCrudController extends AbstractCrudController
             TextField::new('email'),
             DateTimeField::new('createdAt'),
             //TextField::new('photoFilename')
+            TextField::new('state'),
             ImageField::new('photoFilename')
                 ->setBasePath('/guestbook')
                 ->setLabel('Photo')

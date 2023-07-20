@@ -5,7 +5,7 @@
 {% block body %}
 <ul class="list-group">
     {% for conference in conferences %}
-            <li class="list-group-item"><a href="{{ path('conference', {id: conference.id}) }}"> {{ conference }}</a></li>
+            <li class="list-group-item"><a href="{{ path('conference', {id: conference.id}) }}"> {{ conference }}</a> | <a href="{{ path('conference', {id: conference.id}) }}">View</a></li>
     {% endfor %}
 </ul>
 {% endblock %}
