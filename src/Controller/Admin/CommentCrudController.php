@@ -50,7 +50,7 @@ class CommentCrudController extends AbstractCrudController
             //TextField::new('photoFilename')
             TextField::new('state'),
             ImageField::new('photoFilename')
-                ->setBasePath('/guestbook')
+                ->setBasePath('/uploads/photos')
                 ->setLabel('Photo')
                 ->onlyOnIndex()
 

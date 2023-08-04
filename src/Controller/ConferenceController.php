@@ -18,6 +18,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 //use App\SpamChecker;
 use App\Message\CommentMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Notifier\Notification\Notification;
+use Symfony\Component\Notifier\NotifierInterface;
 
 class ConferenceController extends AbstractController
 {
@@ -42,9 +44,19 @@ class ConferenceController extends AbstractController
 
     }
 
+     #[Route('/conference_header', name: 'conference_header')]
+     public function conferenceHeader(ConferenceRepository $conferenceRepository): Response
+     {
+         return $this->render('conference/header.html.twig', [
+             'conferences' => $conferenceRepository->findAll(),
+         ]);
+     }
+
     #[Route('/conference/{id}', name: 'conference')]
-    public function show(Request $request,#[Autowire('%photo_dir%')] string $photoDir, Environment $environment, int $id, CommentRepository $commentRepository, EntityManagerInterface $entityManager): Response
+    public function show(Request $request,#[Autowire('%photo_dir%')] string $photoDir, NotifierInterface $notifier, Environment $environment, int $id, CommentRepository $commentRepository, EntityManagerInterface $entityManager): Response
     {
+
+
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($id, $offset);
         $conf = $entityManager->getRepository(Conference::class)->find($id);
@@ -52,6 +64,9 @@ class ConferenceController extends AbstractController
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
+
+
+
         if ($form->isSubmitted() && $form->isValid())
         {
             //dd($form['photoFilename']->getData()->getClientOriginalName());
@@ -65,6 +80,7 @@ class ConferenceController extends AbstractController
                                 $comment->setPhotoFilename($filename);
                             }
             $comment->setConference($conf);
+            //echo "11".dd($comment);
             $entityManager->persist($comment);
             $this->entityManager->flush();
             $context = [
@@ -79,7 +95,11 @@ class ConferenceController extends AbstractController
  //           }
  //           $entityManager->flush();
             $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
+            $notifier->send(new Notification('Thank you for the feedback; your comment will be posted after moderation.', ['browser']));
             return $this->redirectToRoute('conference', ['id' => $id]);
+        }
+        if ($form->isSubmitted()) {
+            $notifier->send(new Notification('Can you check your submission? There are some problems with it.', ['browser']));
         }
          return new Response($environment->render('conference/show.html.twig', [
              'conference' => $id,
