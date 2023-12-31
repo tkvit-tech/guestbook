@@ -1,0 +1,5 @@
+{% for conference in conferences %}
+    <a class="nav-conference" href="{{ path('conference', { id: conference.id }) }}">
+        {{ conference }}
+    </a>
+{% endfor %}

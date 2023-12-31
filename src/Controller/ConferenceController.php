@@ -9,6 +9,7 @@ use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Predis\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,10 +24,12 @@ use Symfony\Component\Notifier\NotifierInterface;
 
 class ConferenceController extends AbstractController
 {
+    const PREFIX = 'REDIS_TEST';
 
     public function __construct(
         private EntityManagerInterface $entityManager,
         private MessageBusInterface $bus,
+        private Client $client
      ) {
      }
 
@@ -38,6 +41,47 @@ class ConferenceController extends AbstractController
             'controller_name' => 'ConferenceController',
         ]);
 */
+        //dd($this->client);
+        //$this->client->connect("redis", 6379);
+        //$this->client->set('123','456',(new \DateTime())->format('Ymd'));
+        //$this->client->hmset("123", array(1,2,3));
+        //echo $this->client->hmget("123",array(1,2,3));
+
+        $key = \sprintf('%s:%d', self::PREFIX, (new \DateTime())->format('Ymd'));
+
+        $data = [];
+
+
+        if (!$this->client->exists($key)) {
+
+            $this->client->pipeline(
+
+                function ($pipe) use ($key, $data) {
+
+
+
+                    $pipe->rpush(\sprintf('%s:key_list', self::PREFIX), [$key]);
+
+                    $pipe->hmset(
+
+                        $key,
+
+                        ['json' => json_encode(['first' => '123','second' => '456'])]
+
+                    );
+
+                }
+
+            );
+
+        }
+
+
+        //dump($this->client->lrange(\sprintf('%s:key_list', self::PREFIX), 0, -1));
+
+        //dump(json_decode($this->client->hgetall($key)['json']));
+        //die();
+
     return new Response($environment->render('conference/index.html.twig', [
        'conferences' => $conferenceRepository->findAll()
     ]));
